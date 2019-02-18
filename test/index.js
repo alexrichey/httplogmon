@@ -1,4 +1,4 @@
-var LogMon = require('../src/log_mon'),
+var LogMonitor = require('../src/log_mon'),
     clfDate = require('./clf_date'),
     fs = require('fs'),
     testData = require('./test_data');
@@ -14,7 +14,7 @@ const TEST_LINES = [
 ];
 
 var makeLogMon = (config) => {
-  var logMon = new LogMon.LogMonitor(config || {logFilePath: "./test-output-log.txt"});
+  var logMon = new LogMonitor(config || {logFilePath: "./test-output-log.txt"});
   TEST_LINES.forEach((line) => logMon.handleNewLogLine(line));
   return logMon;
 };

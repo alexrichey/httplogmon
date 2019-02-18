@@ -155,4 +155,4 @@ var LogMonitor = function(config) {
   };
 };
 
-module.exports = {LogMonitor: LogMonitor};
+module.exports = LogMonitor;
