@@ -3,8 +3,8 @@ var LogMonitor = require('./src/log_mon'),
     _ = require('lodash'),
     clear = require('clear');
 
-
 const LOG_FILE_PATH = process.env.LOG_FILE_PATH || '/tmp/access.log';
+const ALARM_LOG_COUNT_THRESHOLD = parseInt(process.env.ALARM_LOG_COUNT_THRESHOLD) || 10;
 const REFRESH_LOOP_MS = parseInt(process.env.REFRESH_LOOP_MS) || 10 * 1000; // 10 second default
 const LOG_CACHE_RETENTION_TIME_SECONDS = parseInt(process.env.LOG_CACHE_RETENTION_TIME_SECONDS) || 120;
 const DISREGARD_LOG_TIMESTAMP = process.env.DISREGARD_LOG_TIMESTAMP ? (process.env.DISREGARD_LOG_TIMESTAMP == 'true') : true;
@@ -47,7 +47,8 @@ function redraw(logMonitor) {
 var accessLogMonitor = new LogMonitor({
   logFilePath: LOG_FILE_PATH,
   logCacheRetentionTimeSeconds: LOG_CACHE_RETENTION_TIME_SECONDS,
-  ignoreOldTimestampLogs: DISREGARD_LOG_TIMESTAMP
+  ignoreOldTimestampLogs: DISREGARD_LOG_TIMESTAMP,
+  alarmLogCountThreshold: ALARM_LOG_COUNT_THRESHOLD
 });
 accessLogMonitor.start();
 

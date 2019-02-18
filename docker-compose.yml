@@ -3,6 +3,7 @@ httplogmon:
   image: httplogmon
   environment:
     - LOG_FILE_PATH=
+    - ALARM_LOG_COUNT_THRESHOLD=
     - REFRESH_LOOP_MS=
     - LOG_CACHE_RETENTION_TIME_SECONDS=
     - RUN_LOG_MAKER_SERVER=
