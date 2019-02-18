@@ -1,0 +1,22 @@
+{
+  "name": "logmon",
+  "version": "1.0.0",
+  "description": "Consumes an actively written-to w3c-formatted HTTP access log",
+  "main": "index.js",
+  "scripts": {
+    "test": "jasmine test"
+  },
+  "author": "Alex",
+  "license": "ISC",
+  "dependencies": {
+    "access-log": "^0.4.1",
+    "chalk": "^2.4.2",
+    "clear": "^0.1.0",
+    "clf-parser": "0.0.2",
+    "jasmine": "^3.3.1",
+    "morgan": "^1.9.1",
+    "node-grok": "^2.0.3",
+    "text-file-follower": "^0.1.0",
+    "winston": "^3.2.1"
+  }
+}
