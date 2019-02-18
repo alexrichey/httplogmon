@@ -12,7 +12,7 @@ var follow = require('text-file-follower'),
  */
 var LogMonitor = function(config) {
   this.DISREGARD_LOG_TIMESTAMP = config.ignoreOldTimestampLogs;
-  this.ALARM_LOG_COUNT_THRESHOLD = config.alarmLogCountThreshold || 10;
+  this.LOG_COUNT_PER_SECOND_ALARM_THRESHOLD = config.alarmLogCountThreshold || 10;
   this.CACHED_LOG_RETENTION_SECONDS = config.logCacheRetentionTimeSeconds || 2 * 60;
 
   this.logFilePath = config.logFilePath;
@@ -32,6 +32,7 @@ var LogMonitor = function(config) {
   this.errors = [];
 
   // cached stats
+  this.logsPerSecond = 0;
   this.shortTermHitCount = 0;
   this.cachedApiSectionHits = {};
   this.cachedUserHits = {};
@@ -160,30 +161,30 @@ var LogMonitor = function(config) {
     _.remove(this.logs, (log) => {
       var logDate = self.DISREGARD_LOG_TIMESTAMP ? log.processed_at : log.time_local;
       return (new Date(logDate) < limit);
-    })
+    });
   };
 
+  this.getUptimeSeconds = () => {
+    var dif = new Date().getTime() - this.startTime.getTime();
+    return dif / 1000;
+  };
 
-  this.topTrafficBreach = -1;
   /**
    * Generates traffic alerts based on whether the threshold has been breached.
-   * Note: since logs are processed async, the breach may be registered before all the logs
-   * are processed, which might be misleading when reporting the hits. To Rememdy this,
-   * while the breach is active, we update the actual max number of logs seen during the breach period
    */
   this.generateAlarmsOrRecovery = () => {
-    var trafficAlertActive = this.trafficAlertActive();
-    if (trafficAlertActive) {
-      this.topTrafficBreach = Math.max(this.topTrafficBreach, this.logs.length);
-      if (this.logs.length < this.ALARM_LOG_COUNT_THRESHOLD) {
-        // Set the actual breach hits number on the latest traffic alert
-        var latestAlert = this.trafficAlerts[this.trafficAlerts.length - 1];
-        latestAlert.hits = this.topTrafficBreach;
-        this.topTrafficBreach = -1;
+    // The app may have just started. In cases like this, use uptime to calc the average
+    var comparisonPeriod = Math.min(this.CACHED_LOG_RETENTION_SECONDS, this.getUptimeSeconds());
+    this.logsPerSecond = this.logs.length / comparisonPeriod;
+
+    if (this.logsPerSecond <= this.LOG_COUNT_PER_SECOND_ALARM_THRESHOLD) {
+      if (this.trafficAlertActive()) {
         this.recoverFromAlarm();
       }
-    } else if (this.logs.length >= this.ALARM_LOG_COUNT_THRESHOLD) {
-      this.soundTheAlarm();
+    } else {
+      if (!this.trafficAlertActive()) {
+        this.soundTheAlarm();
+      }
     }
   };
 

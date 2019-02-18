@@ -11,7 +11,7 @@ docker build -t httplogmon .
 ###### Env Vars
 `LOG_FILE_PATH`: Path to the logfile that the app will monitor. Defaults to `/tmp/access.log`
 
-`ALARM_LOG_COUNT_THRESHOLD`: If this number of logs is seen during the `LOG_CACHE_RETENTION_TIME_SECONDS` then an alarm will be set off.
+`LOG_COUNT_PER_SECOND_ALARM_THRESHOLD`: If the average number of logs seen during the `LOG_CACHE_RETENTION_TIME_SECONDS` is greater than this number, then an alarm will be set off.
 
 
 `REFRESH_LOOP_MS`: Rate (in Milliseconds) at which the app should refresh the display, and clear short term stats. If you want short term stats to persist longer, increase this value. Defaults to 10 seconds (10000)

@@ -1,4 +1,5 @@
 var LogMonitor = require('../src/log_mon'),
+    _ = require('lodash'),
     clfDate = require('./clf_date'),
     fs = require('fs');
 
@@ -12,11 +13,26 @@ const TEST_LINES = [
   `127.0.0.1 - mary [${clfNow}] "POST /api/user HTTP/1.0" 503 12`
 ];
 
+var testNames = ['jon', 'jane', 'bob', 'mary'];
+var testSections = ['report/test/api', '/users/create', '/users/delete', 'api/user/create', 'api/user/delete'];
+var makeTestLogLines = function(n) {
+  return _.times(n, () => {
+    return `127.0.0.1 - ${_.sample(testNames)} [${clfDate()}] "GET ${_.sample(testSections)} HTTP/1.0" 200 123\n`;
+  })
+};
+
+
 /**
  * Creates a LogMonitor and inputs all the test lines
  */
 var makeLogMon = (config) => {
   var logMon = new LogMonitor(config || {logFilePath: LOG_FILE_PATH});
+
+  // fake that it started a 10 minutes ago
+  var startTime = new Date();
+  startTime.setMinutes(startTime.getMinutes() - 10);
+  logMon.startTime = startTime;
+
   TEST_LINES.forEach((line) => logMon.handleNewLogLine(line));
   logMon.postLogProcessing();
   return logMon;
@@ -45,37 +61,76 @@ describe('Log Monitor', function() {
   });
 
   describe('alarms', () => {
-    it('should trigger when the theshold is breached', () => {
+    describe('when the number of required logs is at the threshold', () => {
       var logMon = makeLogMon();
-      logMon.ALARM_LOG_COUNT_THRESHOLD = logMon.logs.length + 1;
-      logMon.handleNewLogLine(TEST_LINES[0]);
+      logMon.logs = [];
+
+      logMon.LOG_COUNT_PER_SECOND_ALARM_THRESHOLD = 2;
+      logMon.CACHED_LOG_RETENTION_SECONDS = 10;
+      var logsNeededToTriggerAlarm = logMon.CACHED_LOG_RETENTION_SECONDS * logMon.LOG_COUNT_PER_SECOND_ALARM_THRESHOLD;
+      // e.g. if we retain logs for 10 seconds, and the alarm threshold is 2 per second, then we need 20 logs to trigger.
+
+      // almost trigger an alarm
+      makeTestLogLines(logsNeededToTriggerAlarm).forEach((log) => {
+        logMon.handleNewLogLine(log);
+      })
       logMon.postLogProcessing();
-      expect(logMon.trafficAlerts.length).toBe(1);
-      expect(logMon.trafficAlerts[0].type).toBe(logMon.BREACH_TYPE);
-      expect(logMon.trafficAlertActive()).toBe(true);
+
+      it('should not trigger an alarm', () => {
+        expect(logMon.trafficAlerts.length).toBe(0);
+      })
     });
 
-    it('should recover from a breach if the next log is under the threshold', () => {
+    describe('when the number of required logs is above the threshold', () => {
       var logMon = makeLogMon();
+      logMon.logs = [];
 
-      // trigger an alarm
-      logMon.ALARM_LOG_COUNT_THRESHOLD = logMon.logs.length + 1;
-      logMon.handleNewLogLine(TEST_LINES[0]);
+      logMon.LOG_COUNT_PER_SECOND_ALARM_THRESHOLD = 2;
+      logMon.CACHED_LOG_RETENTION_SECONDS = 10;
+      var logsNeededToTriggerAlarm = logMon.CACHED_LOG_RETENTION_SECONDS * logMon.LOG_COUNT_PER_SECOND_ALARM_THRESHOLD;
+      // e.g. if we retain logs for 10 seconds, and the alarm threshold is 2 per second, then we need 20 logs to trigger.
+
+      makeTestLogLines(logsNeededToTriggerAlarm + 1).forEach((log) => {
+        logMon.handleNewLogLine(log);
+      })
       logMon.postLogProcessing();
-      expect(logMon.trafficAlerts.length).toBe(1);
-      expect(logMon.trafficAlerts[0].type).toBe(logMon.BREACH_TYPE);
+
+      it('should trigger an alarm', () => {
+        expect(logMon.trafficAlerts.length).toBe(1);
+        expect(logMon.trafficAlerts[0].type).toBe(logMon.BREACH_TYPE);
+        expect(logMon.trafficAlertActive()).toBe(true);
+      })
+    });
+
+    describe('during an alarm when the next log is under the threshold', () => {
+      var logMon = makeLogMon();
+      logMon.logs = [];
+
+      logMon.LOG_COUNT_PER_SECOND_ALARM_THRESHOLD = 2;
+      logMon.CACHED_LOG_RETENTION_SECONDS = 10;
+      var logsNeededToTriggerAlarm = logMon.CACHED_LOG_RETENTION_SECONDS * logMon.LOG_COUNT_PER_SECOND_ALARM_THRESHOLD;
+      // e.g. if we retain logs for 10 seconds, and the alarm threshold is 2 per second, then we need 20 logs to trigger.
+
+      makeTestLogLines(logsNeededToTriggerAlarm + 1).forEach((log) => {
+        logMon.handleNewLogLine(log);
+      })
+      logMon.postLogProcessing();
+      if (logMon.trafficAlerts.length != 1) {
+        throw 'A traffic alert should have been created';
+      }
 
       // get below the threshold again
       logMon.logs.pop();
       logMon.logs.pop();
 
-      logMon.handleNewLogLine(TEST_LINES[0]);
+      logMon.handleNewLogLine(makeTestLogLines(1));
       logMon.postLogProcessing();
 
-      expect(logMon.trafficAlerts.length).toBe(2);
-      expect(logMon.trafficAlerts[1].type).toBe(logMon.RECOVERY_TYPE);
+      it('should recover', () => {
+        expect(logMon.trafficAlerts.length).toBe(2);
+        expect(logMon.trafficAlerts[1].type).toBe(logMon.RECOVERY_TYPE);
+      })
     });
-
   });
 
   describe('log queue', () => {
