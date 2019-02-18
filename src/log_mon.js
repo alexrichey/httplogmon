@@ -149,7 +149,7 @@ var LogMonitor = function(config) {
 
   /**
    * Removes logs that are past the long term retention datetime.
-   * If DISREGARD_LOG_TIMESTAMP is true, use the time that the log as processed for comparison
+   * If DISREGARD_LOG_TIMESTAMP is true, use the time that the log was processed for comparison
    */
   this.removeOldLogs = () => {
     var limit = new Date();
@@ -168,7 +168,7 @@ var LogMonitor = function(config) {
    * Generates traffic alerts based on whether the threshold has been breached.
    * Note: since logs are processed async, the breach may be registered before all the logs
    * are processed, which might be misleading when reporting the hits. To Rememdy this,
-   * while the breach is active, we update the actual max number of logs and reset upon recovery
+   * while the breach is active, we update the actual max number of logs seen during the breach period
    */
   this.generateAlarmsOrRecovery = () => {
     var trafficAlertActive = this.trafficAlertActive();
