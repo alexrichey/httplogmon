@@ -26,6 +26,7 @@ var LogMonitor = function(config) {
   this.BREACH_TYPE = 'breach';
 
   // long term stats
+  this.startTime;
   this.logs = [];
   this.trafficAlerts = [];
   this.errors = [];
@@ -192,6 +193,7 @@ var LogMonitor = function(config) {
    */
   this.start = () => {
     self = this;
+    self.startTime = new Date();
     self.asyncProcessLogsLoop();
 
     this.follower = follow(this.logFilePath);
