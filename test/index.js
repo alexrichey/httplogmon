@@ -13,9 +13,13 @@ const TEST_LINES = [
   `127.0.0.1 - mary [${clfNow}] "POST /api/user HTTP/1.0" 503 12`
 ];
 
+/**
+ * Creates a LogMonitor and inputs all the test lines
+ */
 var makeLogMon = (config) => {
-  var logMon = new LogMonitor(config || {logFilePath: "./test-output-log.txt"});
+  var logMon = new LogMonitor(config || {logFilePath: LOG_FILE_PATH});
   TEST_LINES.forEach((line) => logMon.handleNewLogLine(line));
+  logMon.postLogProcessing();
   return logMon;
 };
 
@@ -48,10 +52,11 @@ describe('Log Monitor', function() {
       logMon.handleNewLogLine(TEST_LINES[0]);
       logMon.postLogProcessing();
       expect(logMon.trafficAlerts.length).toBe(1);
+      expect(logMon.trafficAlerts[0].type).toBe(logMon.BREACH_TYPE);
       expect(logMon.trafficAlertActive()).toBe(true);
     });
 
-    it('should recover if the next log is under the threshold', () => {
+    it('should recover from a breach if the next log is under the threshold', () => {
       var logMon = makeLogMon();
 
       // trigger an alarm
@@ -78,7 +83,7 @@ describe('Log Monitor', function() {
     it('should remove cached logs past the retention date time', () => {
       var CACHED_LOG_RETENTION_SECONDS = 10;
       var logMon = makeLogMon({
-        logFilePath: "./test-output-log.txt",
+        logFilePath: LOG_FILE_PATH,
         logCacheRetentionTimeSeconds: CACHED_LOG_RETENTION_SECONDS
       });
 
@@ -89,10 +94,13 @@ describe('Log Monitor', function() {
         log.time_local = createdAt;
       });
 
-      logMon.handleNewLogLine(TEST_LINES[0]);
+      const newLogLineUser = 'Frank';
+      const newLogLine = `127.0.0.1 - ${newLogLineUser} [${clfNow}] "GET /report HTTP/1.0" 200 123`;
+      logMon.handleNewLogLine(newLogLine);
       logMon.postLogProcessing();
 
       expect(logMon.logs.length).toBe(1);
+      expect(logMon.logs[0].remote_user).toBe(newLogLineUser);
     });
 
   });
