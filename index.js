@@ -7,8 +7,9 @@ var LogMonitor = require('./src/log_mon'),
 const LOG_FILE_PATH = process.env.LOG_FILE_PATH || '/tmp/access.log';
 const REFRESH_LOOP_MS = parseInt(process.env.REFRESH_LOOP_MS) || 10 * 1000;
 const LOG_CACHE_RETENTION_TIME_SECONDS = parseInt(process.env.LOG_CACHE_RETENTION_TIME_SECONDS) || 120;
-const DISREGARD_LOG_TIMESTAMP = process.env.DISREGARD_LOG_TIMESTAMP || true;
+const DISREGARD_LOG_TIMESTAMP = process.env.DISREGARD_LOG_TIMESTAMP ? (process.env.DISREGARD_LOG_TIMESTAMP == 'true') : true;
 
+const RUN_LOG_MAKER_SERVER = process.env.RUN_LOG_MAKER_SERVER ? (process.env.RUN_LOG_MAKER_SERVER == 'true') : true;
 var testServerRunning = false;
 var serverPort = parseInt(process.env.LOG_MAKER_SERVER_PORT) || 3000;
 
@@ -54,7 +55,7 @@ function refreshDisplayLoop() {
 accessLogMonitor.start();
 refreshDisplayLoop();
 
-if (process.env.RUN_LOG_MAKER_SERVER || true) {
+if (RUN_LOG_MAKER_SERVER) {
   logMakerServer(LOG_FILE_PATH, serverPort);
   testServerRunning = true;
 }
