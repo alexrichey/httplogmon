@@ -52,6 +52,6 @@ function refreshDisplayLoop() {
 accessLogMonitor.start();
 refreshDisplayLoop();
 
-if (process.env.RUN_LOG_MAKER_SERVER) {
+if (process.env.RUN_LOG_MAKER_SERVER || true) {
   logMakerServer(LOG_FILE_PATH, parseInt(process.env.LOG_MAKER_SERVER_PORT));
 }

@@ -25,5 +25,6 @@ module.exports = function(logFilePath, port) {
     res.send('Created!');
   });
 
-  app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+  var parsedPort = parseInt(port) || 3000;
+  app.listen(parsedPort, () => console.log(`Example app listening on port ${parsedPort}!`));
 };
