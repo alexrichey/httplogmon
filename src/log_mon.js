@@ -4,16 +4,6 @@ var follow = require('text-file-follower'),
     logParser = require('clf-parser'),
     testData = require('../test/test_data');
 
-// TODO: consider using Path library
-var getSectionFromUri = function(uri) {
-  // set i is 1 to skip the first occurence of '/'
-  for (var i = 1; i < uri.length; i++) {
-    if (uri[i] === '/') {
-      return uri.slice(0, i);
-    }
-  }
-  return uri;
-};
 
 var LogMonitor = function(config) {
   this.DISREGARD_LOG_TIMESTAMP = config.ignoreOldTimestampLogs || false;
@@ -40,13 +30,23 @@ var LogMonitor = function(config) {
       var requestData = parsed.request.split(/ +/);
       parsed.method = requestData[0];
       parsed.path = requestData[1];
-      parsed.section = getSectionFromUri(parsed.path);
+      parsed.section = this.getSectionFromUri(parsed.path);
       parsed.processed_at = new Date();
       return parsed;
     } catch (e) {
       this.errors.push(e);
       return null;
     }
+  };
+
+  this.getSectionFromUri = (uri) => {
+    // set i is 1 to skip the first occurence of '/'
+    for (var i = 1; i < uri.length; i++) {
+      if (uri[i] === '/') {
+        return uri.slice(0, i);
+      }
+    }
+    return uri;
   };
 
   this.cacheUriSectionHit = (section) => {
@@ -155,4 +155,4 @@ var LogMonitor = function(config) {
   };
 };
 
-module.exports = {LogMonitor: LogMonitor, getSectionFromUri: getSectionFromUri};
+module.exports = {LogMonitor: LogMonitor};

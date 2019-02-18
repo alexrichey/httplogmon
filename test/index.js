@@ -20,15 +20,16 @@ var makeLogMon = (config) => {
 };
 
 describe('uris', function() {
+  var logMon = makeLogMon();
   it('should find the section correctly for a two-part uri', function() {
     var uri = '/api/users/';
-    var section = LogMon.getSectionFromUri(uri);
+    var section = logMon.getSectionFromUri(uri);
     expect(section).toBe('/api');
   });
 
   it('should find the section correctly for a three-part uri', function() {
     var uri = '/api/users/create';
-    var section = LogMon.getSectionFromUri(uri);
+    var section = logMon.getSectionFromUri(uri);
     expect(section).toBe('/api');
   });
 });
