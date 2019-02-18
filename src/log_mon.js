@@ -19,10 +19,14 @@ var LogMonitor = function(config) {
     fs.writeFileSync(this.logFilePath, null);
   }
 
+  this.shortTermHitCount = 0;
   this.logs = [];
-  this.cachedApiSectionHits = {};
   this.trafficAlerts = [];
   this.errors = [];
+
+  // cached stats
+  this.cachedApiSectionHits = {};
+  this.cachedUserHits = {};
 
   this.parseLogLine = function(line) {
     try {
@@ -49,6 +53,14 @@ var LogMonitor = function(config) {
     return uri;
   };
 
+  this.cacheUserHit = (user) => {
+    if (this.cachedUserHits[user]) {
+      this.cachedUserHits[user] = this.cachedUserHits[user] + 1;
+    } else {
+      this.cachedUserHits[user] = 1;
+    }
+  };
+
   this.cacheUriSectionHit = (section) => {
     if (this.cachedApiSectionHits[section]) {
       this.cachedApiSectionHits[section] = this.cachedApiSectionHits[section] + 1;
@@ -57,13 +69,23 @@ var LogMonitor = function(config) {
     }
   };
 
-  this.getTopUriSections = () => {
-    var asPairs = _.toPairs(this.cachedApiSectionHits);
-    return _.sortBy(asPairs, (section) => {return -1 * section[1];});
+  this.makeSortedHitCountPairs = (cachedSection) => {
+    var asPairs = _.toPairs(cachedSection);
+    return _.sortBy(asPairs, (pair) => {return -1 * pair[1];});
+  };
+
+  this.getTopUsersHits = (n) => {
+    return _.take(this.makeSortedHitCountPairs(this.cachedUserHits), n);
+  };
+
+  this.getTopUriSections = (n) => {
+    return _.take(this.makeSortedHitCountPairs(this.cachedApiSectionHits), n);
   };
 
   this.clearCachedStats = () => {
-    this.cachedApiSectionHits = [];
+    this.shortTermHitCount = 0;
+    this.cachedApiSectionHits = {};
+    this.cachedUserHits = {};
   };
 
   this.soundTheAlarm = () => {
@@ -96,6 +118,8 @@ var LogMonitor = function(config) {
     const parsed = this.parseLogLine(line);
     if (parsed) {
       this.cacheUriSectionHit(parsed.section);
+      this.cacheUserHit(parsed.remote_user);
+      this.shortTermHitCount += 1;
       this.logs.push(parsed);
     }
   };
