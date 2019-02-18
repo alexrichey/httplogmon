@@ -13,10 +13,9 @@ docker build -t httplogmon .
 
 `LOG_COUNT_PER_SECOND_ALARM_THRESHOLD`: If the average number of logs seen during the `LOG_CACHE_RETENTION_TIME_SECONDS` is greater than this number, then an alarm will be set off.
 
-
 `REFRESH_LOOP_MS`: Rate (in Milliseconds) at which the app should refresh the display, and clear short term stats. If you want short term stats to persist longer, increase this value. Defaults to 10 seconds (10000)
 
-`LOG_CACHE_RETENTION_TIME_SECONDS`: Duration (in seconds) for which long term stats are retained. IMPORTANT: this also determines the threshold alarms. The default is 2 minutes (120). For testing purposes, it can be useful to decrease this amount. For example, if you want to test Traffic Alert Recoveries, but don't want to wait a full 2 minutes, decrease this amount.
+`LOG_CACHE_RETENTION_TIME_SECONDS`: Duration (in seconds) for which long term stats are retained. IMPORTANT: this also determines the threshold alarms. The default is 2 minutes (120). For testing purposes, it can be useful to decrease this amount. For example, if you want to test Traffic Alert Recoveries, but don't want to wait a full 2 minutes for logs to clear out, decrease this number.
 
 `RUN_LOG_MAKER_SERVER`: If you want to spam some logs into the configured file, you can run this little server, which will listen on the `LOG_MAKER_SERVER_PORT` port. POST to localhost:`LOG_MAKER_SERVER_PORT`/count=[n] to send n logs into the file
 
