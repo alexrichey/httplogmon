@@ -97,6 +97,7 @@ exports.LogMonitor = function(config) {
     for (var i = this.logs.length - 1; i >= 0; i--) {
       var log = this.logs[i];
       var logDate = this.DISREGARD_LOG_TIMESTAMP ? log.processed_at : log.time_local;
+
       if (new Date(logDate) < limit) {
         this.logs.splice(i, 1);
       }
@@ -108,13 +109,6 @@ exports.LogMonitor = function(config) {
     if (trafficAlertActive) {
       if (this.logs.length < this.ALARM_LOG_COUNT_THRESHOLD) {
         this.recoverFromAlarm();
-      } else {
-        // Check back in a bit
-        var self = this;
-        setTimeout(() => {
-          self.removeOldLogs();
-          self.generateAlarmsOrRecovery();
-        }, (self.CACHED_LOG_RETENTION_SECONDS * 1000) + 1);
       }
     } else if (this.logs.length >= this.ALARM_LOG_COUNT_THRESHOLD) {
       this.soundTheAlarm();
@@ -144,19 +138,10 @@ exports.LogMonitor = function(config) {
   this.asyncProcessLogsLoop = () => {
     self = this;
     setTimeout(() => {
-      self.postLogProcessing();
+      try {
+        self.postLogProcessing();
+      } catch (e) {}
       self.asyncProcessLogsLoop();
     }, 100);
   };
 };
-
-// // Stats
-// var top_sections = [
-//   {"section": "/api", "hits": 20},
-//   {"section": "/users/", "hits": 10}
-// ];
-// var top_users = [
-//   {"user": "john", "hits": 20},
-//   {"user": "sally", "hits": 20},
-// ];
-// var stats = {"Section With Most Hits": "/api", "Most Active User": "John"};

@@ -1,4 +1,5 @@
 var Logs = require('./src/log_mon'),
+    logMakerServer = require('./src/log_maker_server.js'),
     _ = require('lodash'),
     chalk = require('chalk'),
     clear = require('clear');
@@ -6,12 +7,12 @@ var Logs = require('./src/log_mon'),
 
 const LOG_FILE_PATH = process.env.LOG_FILE_PATH || "./test/access.log";
 const REFRESH_LOOP_MS = parseInt(process.env.REFRESH_LOOP_MS) || 10 * 1000;
-const LOG_CACHE_RETENTION_TIME_MS = parseInt(process.env.LOG_CACHE_RETENTION_TIME_MS) || 120 * 1000;
+const LOG_CACHE_RETENTION_TIME_SECONDS = parseInt(process.env.LOG_CACHE_RETENTION_TIME_SECONDS) || 120;
 const DISREGARD_LOG_TIMESTAMP = process.env.DISREGARD_LOG_TIMESTAMP || true;
 
 var accessLogMonitor = new Logs.LogMonitor({
   logFilePath: LOG_FILE_PATH,
-  logCacheRetentionTimeSeconds: LOG_CACHE_RETENTION_TIME_MS,
+  logCacheRetentionTimeSeconds: LOG_CACHE_RETENTION_TIME_SECONDS,
   ignoreOldTimestampLogs: DISREGARD_LOG_TIMESTAMP
 });
 
@@ -50,3 +51,7 @@ function refreshDisplayLoop() {
 
 accessLogMonitor.start();
 refreshDisplayLoop();
+
+if (process.env.RUN_LOG_MAKER_SERVER) {
+  logMakerServer(LOG_FILE_PATH, parseInt(process.env.LOG_MAKER_SERVER_PORT));
+}

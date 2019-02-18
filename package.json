@@ -13,6 +13,7 @@
     "chalk": "^2.4.2",
     "clear": "^0.1.0",
     "clf-parser": "0.0.2",
+    "express": "^4.16.4",
     "jasmine": "^3.3.1",
     "morgan": "^1.9.1",
     "node-grok": "^2.0.3",
