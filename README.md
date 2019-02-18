@@ -8,7 +8,15 @@ npm install
 docker build -t httplogmon .
 
 #### Running on Node
-###### Env Vars
+node index.js
+
+#### Running Tests
+npm test. (Requires Jasmine to be installed globally)
+
+#### Running on Docker
+with Docker Compose, edit the docker-compose.yml environment vars, and run `docker-compose up`
+
+##### Env Vars
 `LOG_FILE_PATH`: Path to the logfile that the app will monitor. Defaults to `/tmp/access.log`
 
 `LOG_COUNT_PER_SECOND_ALARM_THRESHOLD`: If the average number of logs seen during the `LOG_CACHE_RETENTION_TIME_SECONDS` is greater than this number, then an alarm will be set off.
@@ -23,10 +31,6 @@ docker build -t httplogmon .
 
 `DISREGARD_LOG_TIMESTAMP`: When new logs are received with old timestamps, this determines whether to include them. Defaults to true.
 
-#### Running on Docker
-with Docker Compose, edit the docker-compose.yml environment vars, and run `docker-compose up`
 
 Unfortunately, when running on Docker, you won't experience the true glory of colored terminal output. (the traffic alerts are red, and recoveries are green)
 
-#### Running Tests
-npm test. (Requires Jasmine to be installed globally)
