@@ -1,4 +1,4 @@
-var LogMon = require("../src/log_mon"),
+var LogMon = require('../src/log_mon'),
     clfDate = require('./clf_date'),
     fs = require('fs'),
     testData = require('./test_data');
@@ -19,21 +19,21 @@ var makeLogMon = (config) => {
   return logMon;
 };
 
-describe("uris", function() {
-  it("should find the section correctly for a two-part uri", function() {
+describe('uris', function() {
+  it('should find the section correctly for a two-part uri', function() {
     var uri = '/api/users/';
     var section = LogMon.getSectionFromUri(uri);
     expect(section).toBe('/api');
   });
 
-  it("should find the section correctly for a three-part uri", function() {
+  it('should find the section correctly for a three-part uri', function() {
     var uri = '/api/users/create';
     var section = LogMon.getSectionFromUri(uri);
     expect(section).toBe('/api');
   });
 });
 
-describe("Log Monitor", function() {
+describe('Log Monitor', function() {
   it('should have the correct initial state', () => {
     var logMon = makeLogMon();
     expect(logMon.logs.length).toBe(TEST_LINES.length);

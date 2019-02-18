@@ -17,14 +17,14 @@ var getSectionFromUri = function(uri) {
 
 var LogMonitor = function(config) {
   this.DISREGARD_LOG_TIMESTAMP = config.ignoreOldTimestampLogs || false;
-  this.RECOVERY_TYPE = "recover";
-  this.BREACH_TYPE = "breach";
+  this.RECOVERY_TYPE = 'recover';
+  this.BREACH_TYPE = 'breach';
   this.ALARM_LOG_COUNT_THRESHOLD = config.alarmLogCountThreshold || 10;
   this.CACHED_LOG_RETENTION_SECONDS = config.logCacheRetentionTimeSeconds || 2 * 60;
 
   this.logFilePath = config.logFilePath;
   if (!this.logFilePath) {
-    throw "Empty Log File Path! ";
+    throw 'Empty Log File Path! ';
   } else if (!fs.existsSync(this.logFilePath)) {
     fs.writeFileSync(this.logFilePath, null);
   }
