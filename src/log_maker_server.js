@@ -3,13 +3,11 @@ const express = require('express'),
       fs = require('fs'),
       _ = require('lodash');
 
-const clfNow = clfDate();
-
 var testNames = ['jon', 'jane', 'bob', 'mary'];
 var testSections = ['report/test/api', '/users/create', '/users/delete', 'api/user/create', 'api/user/delete'];
 
 var makeTestLogLine = function() {
-  return `127.0.0.1 - ${_.sample(testNames)} [${clfNow}] "GET ${_.sample(testSections)} HTTP/1.0" 200 123\n`; 
+  return `127.0.0.1 - ${_.sample(testNames)} [${clfDate()}] "GET ${_.sample(testSections)} HTTP/1.0" 200 123\n`;
 };
 
 module.exports = function(logFilePath, port) {
