@@ -1,7 +1,6 @@
 var LogMonitor = require('../src/log_mon'),
     clfDate = require('./clf_date'),
-    fs = require('fs'),
-    testData = require('./test_data');
+    fs = require('fs');
 
 
 const LOG_FILE_PATH = './test/access.log';
