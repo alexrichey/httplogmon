@@ -24,7 +24,7 @@ docker build -t httplogmon .
 #### Running on Docker
 with Docker Compose, edit the docker-compose.yml environment vars, and run `docker-compose up`
 
-Unfortunately, when running on Docker, you won't experience the true glory of colored console output. (the traffic alerts are red, and recoveries are green)
+Unfortunately, when running on Docker, you won't experience the true glory of colored terminal output. (the traffic alerts are red, and recoveries are green)
 
 #### Running Tests
-npm test
+npm test. (Requires Jasmine to be installed globally)
