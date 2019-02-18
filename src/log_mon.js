@@ -22,6 +22,9 @@ exports.LogMonitor = function(config) {
   this.CACHED_LOG_RETENTION_SECONDS = config.logCacheRetentionTimeSeconds || 2 * 60;
 
   this.logFilePath = config.logFilePath;
+  if (!this.logFilePath) {
+    throw "Empty Log File Path! ";
+  }
 
   this.logs = [];
   this.cachedApiSectionHits = {};

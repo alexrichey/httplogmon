@@ -4,13 +4,14 @@ var Logs = require('./src/log_mon'),
     clear = require('clear');
 
 
-const DISREGARD_LOG_TIMESTAMP = true;
-const REFRESH_LOOP_MS = 5 * 1000;
-const LOG_FILE_PATH = "./test/access.log";
+const LOG_FILE_PATH = process.env.LOG_FILE_PATH || "./test/access.log";
+const REFRESH_LOOP_MS = parseInt(process.env.REFRESH_LOOP_MS) || 10 * 1000;
+const LOG_CACHE_RETENTION_TIME_MS = parseInt(process.env.LOG_CACHE_RETENTION_TIME_MS) || 120 * 1000;
+const DISREGARD_LOG_TIMESTAMP = process.env.DISREGARD_LOG_TIMESTAMP || true;
 
 var accessLogMonitor = new Logs.LogMonitor({
   logFilePath: LOG_FILE_PATH,
-  logCacheRetentionTimeSeconds: 8,
+  logCacheRetentionTimeSeconds: LOG_CACHE_RETENTION_TIME_MS,
   ignoreOldTimestampLogs: DISREGARD_LOG_TIMESTAMP
 });
 
@@ -25,7 +26,6 @@ function printTrafficAlerts(logMonitor) {
     }
   });
 }
-
 var startTime = new Date();
 function redraw(logMonitor) {
   console.log(`HTTP MON!`);

@@ -1,0 +1,9 @@
+httplogmon:
+  container_name: httplogmon 
+  image: httplogmon
+  environment:
+    - DISREGARD_LOG_TIMESTAMP="true"
+    - REFRESH_LOOP_MS="5000"
+    - LOG_CACHE_RETENTION_TIME_MS="10000"
+    - LOG_FILE_PATH="/var/log/access.log"
+
