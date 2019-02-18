@@ -1,8 +1,8 @@
 var follow = require('text-file-follower'),
     fs = require('fs'),
+    chalk = require('chalk'),
     _ = require('lodash'),
-    logParser = require('clf-parser'),
-    testData = require('../test/test_data');
+    logParser = require('clf-parser');
 
 
 var LogMonitor = function(config) {
@@ -78,6 +78,18 @@ var LogMonitor = function(config) {
   this.trafficAlertActive = () => {
     var previousAlert = this.trafficAlerts[this.trafficAlerts.length - 1];
     return previousAlert && previousAlert.type === this.BREACH_TYPE;
+  };
+
+  this.printTrafficAlerts = (logMonitor) => {
+    var trafficAlertsCopy = this.trafficAlerts.slice(0);
+    var highTrafficAlerts = _.reverse(trafficAlertsCopy);
+    return highTrafficAlerts.map(r => {
+      if (r.type === this.BREACH_TYPE) {
+        console.log(chalk.red(`High traffic generated an alert - hits = ${r.hits}, triggered at ${r.alert_time}`));
+      } else {
+        console.log(chalk.green(`Traffic levels have returned to normal, triggered at ${r.alert_time}`));
+      }
+    });
   };
 
   this.handleNewLogLine = (line, cbFn) => {
