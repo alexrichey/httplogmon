@@ -1,10 +1,11 @@
 var follow = require('text-file-follower'),
+    fs = require('fs'),
     _ = require('lodash'),
     logParser = require('clf-parser'),
     testData = require('../test/test_data');
 
 // TODO: consider using Path library
-exports.getSectionFromUri = function(uri) {
+var getSectionFromUri = function(uri) {
   // set i is 1 to skip the first occurence of '/'
   for (var i = 1; i < uri.length; i++) {
     if (uri[i] === '/') {
@@ -14,7 +15,7 @@ exports.getSectionFromUri = function(uri) {
   return uri;
 };
 
-exports.LogMonitor = function(config) {
+var LogMonitor = function(config) {
   this.DISREGARD_LOG_TIMESTAMP = config.ignoreOldTimestampLogs || false;
   this.RECOVERY_TYPE = "recover";
   this.BREACH_TYPE = "breach";
@@ -24,6 +25,8 @@ exports.LogMonitor = function(config) {
   this.logFilePath = config.logFilePath;
   if (!this.logFilePath) {
     throw "Empty Log File Path! ";
+  } else if (!fs.existsSync(this.logFilePath)) {
+    fs.writeFileSync(this.logFilePath, null);
   }
 
   this.logs = [];
@@ -37,8 +40,7 @@ exports.LogMonitor = function(config) {
       var requestData = parsed.request.split(/ +/);
       parsed.method = requestData[0];
       parsed.path = requestData[1];
-      parsed.section = exports.getSectionFromUri(parsed.path);
-      this.cacheUriSectionHit(parsed.section);
+      parsed.section = getSectionFromUri(parsed.path);
       parsed.processed_at = new Date();
       return parsed;
     } catch (e) {
@@ -81,6 +83,7 @@ exports.LogMonitor = function(config) {
   this.handleNewLogLine = (line, cbFn) => {
     const parsed = this.parseLogLine(line);
     if (parsed) {
+      this.cacheUriSectionHit(parsed.section);
       this.logs.push(parsed);
     }
   };
@@ -104,10 +107,16 @@ exports.LogMonitor = function(config) {
     }
   };
 
+  this.topTrafficBreach = -1;
   this.generateAlarmsOrRecovery = () => {
     var trafficAlertActive = this.trafficAlertActive();
     if (trafficAlertActive) {
+      this.topTrafficBreach = Math.max(this.topTrafficBreach, this.logs.length);
       if (this.logs.length < this.ALARM_LOG_COUNT_THRESHOLD) {
+        // Set the actual breach number on the latest traffic alert
+        var latestAlert = this.trafficAlerts[this.trafficAlerts.length - 1];
+        latestAlert.hits = this.topTrafficBreach;
+        this.topTrafficBreach = -1;
         this.recoverFromAlarm();
       }
     } else if (this.logs.length >= this.ALARM_LOG_COUNT_THRESHOLD) {
@@ -142,6 +151,8 @@ exports.LogMonitor = function(config) {
         self.postLogProcessing();
       } catch (e) {}
       self.asyncProcessLogsLoop();
-    }, 100);
+    }, 250);
   };
 };
+
+module.exports = {LogMonitor: LogMonitor, getSectionFromUri: getSectionFromUri};

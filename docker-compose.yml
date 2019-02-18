@@ -2,10 +2,10 @@ httplogmon:
   container_name: httplogmon 
   image: httplogmon
   environment:
+    - LOG_FILE_PATH=
     - DISREGARD_LOG_TIMESTAMP=true
-    - REFRESH_LOOP_MS=5000
-    - LOG_CACHE_RETENTION_TIME_SECONDS=15
-    - LOG_FILE_PATH=/var/log/access.log
+    - REFRESH_LOOP_MS=10000
+    - LOG_CACHE_RETENTION_TIME_SECONDS=120
     - RUN_LOG_MAKER_SERVER=true
     - LOG_MAKER_SERVER_PORT=3000
   ports:

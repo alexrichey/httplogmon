@@ -5,7 +5,7 @@ var Logs = require('./src/log_mon'),
     clear = require('clear');
 
 
-const LOG_FILE_PATH = process.env.LOG_FILE_PATH || "./test/access.log";
+const LOG_FILE_PATH = process.env.LOG_FILE_PATH || "/tmp/access.log";
 const REFRESH_LOOP_MS = parseInt(process.env.REFRESH_LOOP_MS) || 10 * 1000;
 const LOG_CACHE_RETENTION_TIME_SECONDS = parseInt(process.env.LOG_CACHE_RETENTION_TIME_SECONDS) || 120;
 const DISREGARD_LOG_TIMESTAMP = process.env.DISREGARD_LOG_TIMESTAMP || true;
