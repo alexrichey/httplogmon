@@ -14,7 +14,7 @@ const TEST_LINES = [
 ];
 
 var makeLogMon = (config) => {
-  var logMon = new LogMon.LogMonitor(config || {});
+  var logMon = new LogMon.LogMonitor(config || {logFilePath: "./test-output-log.txt"});
   TEST_LINES.forEach((line) => logMon.handleNewLogLine(line));
   return logMon;
 };
@@ -76,7 +76,10 @@ describe('Log Monitor', function() {
   describe('log queue', () => {
     it('should remove cached logs past the retention date time', () => {
       var CACHED_LOG_RETENTION_SECONDS = 10;
-      var logMon = makeLogMon({logCacheRetentionTimeSeconds: CACHED_LOG_RETENTION_SECONDS});
+      var logMon = makeLogMon({
+        logFilePath: "./test-output-log.txt",
+        logCacheRetentionTimeSeconds: CACHED_LOG_RETENTION_SECONDS
+      });
 
       // make all the logs barely older than the retention limit
       logMon.logs.forEach((log) => {
