@@ -66,19 +66,13 @@ var LogMonitor = function(config) {
   };
 
   this.cacheUserHit = (user) => {
-    if (this.cachedUserHits[user]) {
-      this.cachedUserHits[user] = this.cachedUserHits[user] + 1;
-    } else {
-      this.cachedUserHits[user] = 1;
-    }
+    var cachedUserHits = this.cachedUserHits[user];
+    this.cachedUserHits[user] = cachedUserHits ? cachedUserHits + 1 : 1;
   };
 
   this.cacheUriSectionHit = (section) => {
-    if (this.cachedApiSectionHits[section]) {
-      this.cachedApiSectionHits[section] = this.cachedApiSectionHits[section] + 1;
-    } else {
-      this.cachedApiSectionHits[section] = 1;
-    }
+    var sectionHits = this.cachedApiSectionHits[section];
+    this.cachedApiSectionHits[section] = sectionHits ? sectionHits + 1 : 1;
   };
 
   this.makeSortedHitCountPairs = (cachedSection) => {
